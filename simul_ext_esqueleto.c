@@ -75,6 +75,50 @@ void Directorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos){
 	}
 }
 
+int Renombrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,char *nombreantiguo, char *nombrenuevo){
+	nombrenuevo[strlen(nombrenuevo)-1] = '\0';
+	for(int i=1; i < sizeof(&directorio); i++){
+	  if(strcmp(directorio[i].dir_nfich,nombrenuevo)==0){
+	  	printf("ERROR: El fichero %s ya existe prueba con otro nombre \n",nombrenuevo);
+	  	break;
+	  }
+	  printf("NOMBRE FICHERO: %s\n",directorio[i].dir_nfich);
+	  printf("LOGITUD NOMBRE FIHWEO: %i\n",sizeof(directorio[i].dir_nfich));
+	  printf("NOMBRE ANTIGUO: %s\n",nombreantiguo);
+	  printf("LONGITUD NOMBRE ANTIGUO: %i\n",sizeof(nombreantiguo));
+	  printf("NOMBRE NUEVO: %s\n",nombrenuevo);
+	  if(strcmp(directorio[i].dir_nfich,nombreantiguo)==0){
+	  	printf("ENTRA DENTRO DEL IF");
+	  	strcpy(directorio[i].dir_nfich,nombrenuevo);
+	  	break;
+	  }else{
+	  	printf("ERROR: el fichro %s no encontrado \n",nombreantiguo);
+	  }
+	}
+}
+
+int Imprimir(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_DATOS *memdatos, char *nombre){
+	nombre[strlen(nombre)-1] = '\0';
+	int successfull = 0;
+	for(int i=1; i < sizeof(&directorio); i++){
+	 if(strcmp(directorio[i].dir_nfich,nombre)==0){
+	 successfull = 1;
+	 char insideTexto [2300];
+	    for(int j= 0; j < sizeof(inodos->blq_inodos[directorio[i].dir_inodo].i_nbloque); j++){
+	        int bloque = inodos->blq_inodos[directorio[i].dir_inodo].i_nbloque[j];
+	        if(bloque != 65535 && bloque != 0){
+	  		//printf("%d",inodos->blq_inodos[directorio[i].dir_inodo].i_nbloque[j]);
+	  		printf("%s",memdatos[bloque].dato);
+	        }
+	    }
+	    printf("\n");
+	  }
+	}
+	if(successfull == 0){
+	  	printf("Error: Fichero %s no encontrado\n",nombre);
+	}
+}
+
 int main()
 {
 	 char *comando[LONGITUD_COMANDO];
