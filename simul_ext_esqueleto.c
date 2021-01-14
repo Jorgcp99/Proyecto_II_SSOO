@@ -6,8 +6,6 @@
 #define LONGITUD_COMANDO 100
 
 void Printbytemaps(EXT_BYTE_MAPS *ext_bytemaps);
-int ComprobarComando(char *strcomando, char *orden, char *argumento1, char *argumento2);
-void LeeSuperBloque(EXT_SIMPLE_SUPERBLOCK *psup);
 int BuscaFich(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, 
               char *nombre);
 void Directorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos);
@@ -25,6 +23,29 @@ void Grabarinodosydirectorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos
 void GrabarByteMaps(EXT_BYTE_MAPS *ext_bytemaps, FILE *fich);
 void GrabarSuperBloque(EXT_SIMPLE_SUPERBLOCK *ext_superblock, FILE *fich);
 void GrabarDatos(EXT_DATOS *memdatos, FILE *fich);
+
+int ComprobarComando(char *strcomando, char *orden, char *argumento1, char *argumento2){
+	if (strcmp(orden,"info\n")!=0) 
+        if (strcmp(orden,"bytemaps\n")!=0) 
+        if (strcmp(orden,"dir\n")!=0) 
+        if (strcmp(orden,"rename")!=0)
+        if (strcmp(orden,"imprimir")!=0)
+        if (strcmp(orden,"remove")!=0)
+        if (strcmp(orden,"copy")!=0)
+        if (strcmp(orden,"salir\0")!=0)
+	 printf("camando no valido\n");
+
+	return 0;
+}
+
+void LeeSuperBloque(EXT_SIMPLE_SUPERBLOCK *psup){
+	printf("Bloque %d Bytes\n", psup->s_block_size);
+	printf("inodos particion = %d\n", psup->s_inodes_count);
+	printf("inodos libres = %d\n", psup->s_free_inodes_count);
+	printf("Bloques particion = %d\n", psup->s_blocks_count);
+	printf("Bloques libres = %d\n", psup->s_free_blocks_count);
+	printf("Primer bloque de datos = %d\n", psup->s_first_data_block);
+}
 
 int main()
 {
