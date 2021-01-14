@@ -60,29 +60,64 @@ int main()
      
      // Buce de tratamiento de comandos
      for (;;){
-		 do {
-		 printf (">> ");
-		 fflush(stdin);
-		 fgets(comando, LONGITUD_COMANDO, stdin);
-		 } while (ComprobarComando(comando,orden,argumento1,argumento2) !=0);
-	     if (strcmp(orden,"dir")==0) {
-            Directorio(&directorio,&ext_blq_inodos);
-            continue;
-            }
-         ...
-         // Escritura de metadatos en comandos rename, remove, copy     
-         Grabarinodosydirectorio(&directorio,&ext_blq_inodos,fent);
-         GrabarByteMaps(&ext_bytemaps,fent);
-         GrabarSuperBloque(&ext_superblock,fent);
-         if (grabardatos)
-           GrabarDatos(&memdatos,fent);
-         grabardatos = 0;
-         //Si el comando es salir se habrán escrito todos los metadatos
-         //faltan los datos y cerrar
-         if (strcmp(orden,"salir")==0){
-            GrabarDatos(&memdatos,fent);
-            fclose(fent);
-            return 0;
-         }
+	do {
+	 printf (">> ");
+	 fflush(stdin);
+	 fgets(comando, LONGITUD_COMANDO, stdin);
+	 char * separateData;
+	 separateData = strtok(comando," ");
+	 int contador = 0;
+	 char * ordenArray [2] = {"empty","empty","empty"};
+	 while(separateData != NULL){
+	 	ordenArray[contador] = separateData;
+	 	contador++;
+	 	separateData = strtok(NULL," ");
+	 }
+	 orden = ordenArray[0];
+	 argumento1 = ordenArray[1];
+	 argumento2 = ordenArray[2];
+	} while (ComprobarComando(comando,orden,argumento1,argumento2) !=0);
+		
+	if (strcmp(orden,"dir")==0 || strcmp(orden,"dir\n")==0) {
+	 for(int i=1; i < sizeof(&directorio); i++){
+	  Directorio(&directorio[i],&ext_blq_inodos);
+	 }
+	 continue;
+	}
+	
+	if (strcmp(orden,"info")==0 || strcmp(orden,"info\n")==0) {
+	 LeeSuperBloque(&ext_superblock);
+	 continue;
+	}
+	
+	if (strcmp(orden,"bytemaps")==0 || strcmp(orden,"bytemaps\n")==0) {
+	 Printbytemaps(&ext_bytemaps);
+	 continue;
+	}
+	
+	if (strcmp(orden,"rename")==0) {
+	 Renombrar(&directorio[i],&ext_blq_inodos,argumento1,argumento2);
+	 continue;
+	}
+	
+	if (strcmp(orden,"imprimir")==0) {
+	 Imprimir(&directorio, &ext_blq_inodos,&datosfich,argumento1);
+	 continue;
+	}
+	
+	if (strcmp(orden,"remove")==0) {
+	 Borrar(&directorio, &ext_blq_inodos,&ext_bytemaps,&ext_superblock,argumento1,&fent);
+	 continue;
+	}
+	
+	if (strcmp(orden,"copy")==0) {
+	 Copiar(&directorio,&ext_blq_inodos,&ext_bytemaps,&ext_superblock,&datosfich,argumento1,argumento2,&fent);
+	 continue;
+	}
+	if (strcmp(orden,"salir\n")==0){
+         fclose(fent);
+         return 0;
+        }
+
      }
 }
