@@ -140,6 +140,98 @@ int Borrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_BYTE_MAPS *ex
 	}
 }
 
+int Copiar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_BYTE_MAPS *ext_bytemaps, EXT_SIMPLE_SUPERBLOCK *ext_superblock,EXT_DATOS *memdatos, char *nombreorigen, char *nombredestino,  FILE *fich){
+	nombredestino[strlen(nombredestino)-1] = '\0';
+	printf("%i\n",sizeof(nombreorigen));
+	printf("%s\n",nombredestino);
+	int successfull = 0;
+	int i;
+	for(int p=1; p < sizeof(&directorio); p++){
+	 printf("%i\n",sizeof(directorio[p].dir_nfich));
+	 if(strcmp(directorio[p].dir_nfich,nombreorigen)==0){
+	 printf("igual");
+	  successfull = 0;
+	  i = p;
+ 	  for(int j=1; j < sizeof(&directorio); j++){
+ 	   if(strcmp(directorio[j].dir_nfich,nombredestino)==0){
+	    successfull = 2;
+	   }
+	  }
+	  break;
+	 }
+	 else{
+ 	  successfull = 1;
+	 }
+	}	
+	
+	//Copy method
+	printf("entra dentro\n");
+	
+	int z;
+	int k;
+	int forStatus = 0;
+	if(successfull == 0){ 
+	
+	 int m;
+	 int bloque;
+	 for(m= 0; m < sizeof(inodos->blq_inodos[directorio[i].dir_inodo].i_nbloque); m++){
+	 if(inodos->blq_inodos[directorio[i].dir_inodo].i_nbloque[m] != 65535 && inodos->blq_inodos[directorio[i].dir_inodo].i_nbloque[m] != 0){
+	    bloque = inodos->blq_inodos[directorio[i].dir_inodo].i_nbloque[m];
+	    printf("Posicion de bloque Antiguo: %i\n",bloque);
+	  }
+	 }
+	  
+	  
+	 for(z=1; z < sizeof(&directorio); z++){
+	  printf("Nombre fichero: %s\n",&directorio[z].dir_nfich);
+	  printf("Inodo fichero: %d\n",&directorio[z].dir_inodo);
+	  if(directorio[z].dir_inodo == 65535){
+	   for(k=0; k < sizeof(ext_bytemaps->bmap_inodos); k++){
+	    if(ext_bytemaps->bmap_inodos[k]==0){
+	     printf("ubicación del inodo 3 %i\n", ext_bytemaps->bmap_inodos[k]);
+	     ext_bytemaps->bmap_inodos[k]=1;
+	     strcpy(directorio[z].dir_nfich,nombredestino);
+	     directorio[z].dir_inodo = k ;
+	     printf("size: %i\n",sizeof(inodos->blq_inodos[directorio[z].dir_inodo].i_nbloque));
+	     /*
+	     for(int y= 1; y < sizeof(inodos->blq_inodos[directorio[z].dir_inodo].i_nbloque); y++){
+	     	inodos->blq_inodos[directorio[z].dir_inodo].i_nbloque[y] = 65535;
+	     }
+	     */
+	     inodos->blq_inodos[directorio[z].dir_inodo].size_fichero = inodos->blq_inodos[directorio[i].dir_inodo].size_fichero;
+	     	 int status = 0;
+		 for(int n=0; n < sizeof(ext_bytemaps->bmap_bloques); n++){
+		  if(ext_bytemaps->bmap_bloques[n]==0){
+		   ext_bytemaps->bmap_bloques[n]=1;
+		   printf("Posicion de bloque Nuevo: %i",ext_bytemaps->bmap_bloques[n]);
+		   //int bloqueNuevo = inodos->blq_inodos[directorio[z].dir_inodo].i_nbloque[n];
+		   printf("Bloque Original: %i",bloque);
+		   //printf("Bloque Nuevo: %i",bloqueNuevo);
+		   strcpy(memdatos[n].dato,memdatos[bloque].dato);	
+		   inodos->blq_inodos[directorio[z].dir_inodo].i_nbloque[4] = n;
+		   status = 1;
+		  }
+		  if(status == 1){
+		   break;
+		  }
+		 }
+	     forStatus = 1;
+	    }
+	    if(forStatus == 1){
+	     break;
+	    }
+	   }
+	   break;
+	  }
+	 }
+	}else if(successfull == 1){
+	   printf("Error: Fichero %s no encontrado\n",nombreorigen);
+	}else if(successfull == 2){
+	   printf("Error: Fichero %s ya existe en la particion",nombredestino);
+	}
+	
+}
+
 int main()
 {
 	 char *comando[LONGITUD_COMANDO];
