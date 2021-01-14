@@ -5,20 +5,6 @@
 
 #define LONGITUD_COMANDO 100
 
-void Printbytemaps(EXT_BYTE_MAPS *ext_bytemaps);
-int BuscaFich(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, 
-              char *nombre);
-void Directorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos);
-int Renombrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, 
-              char *nombreantiguo, char *nombrenuevo);
-int Imprimir(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, 
-             EXT_DATOS *memdatos, char *nombre)
-int Borrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,
-           EXT_BYTE_MAPS *ext_bytemaps, EXT_SIMPLE_SUPERBLOCK *ext_superblock,
-           char *nombre,  FILE *fich);
-int Copiar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,
-           EXT_BYTE_MAPS *ext_bytemaps, EXT_SIMPLE_SUPERBLOCK *ext_superblock,
-           EXT_DATOS *memdatos, char *nombreorigen, char *nombredestino,  FILE *fich);
 void Grabarinodosydirectorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, FILE *fich);
 void GrabarByteMaps(EXT_BYTE_MAPS *ext_bytemaps, FILE *fich);
 void GrabarSuperBloque(EXT_SIMPLE_SUPERBLOCK *ext_superblock, FILE *fich);
@@ -83,9 +69,9 @@ int Renombrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,char *nombrean
 	  	break;
 	  }
 	  printf("NOMBRE FICHERO: %s\n",directorio[i].dir_nfich);
-	  printf("LOGITUD NOMBRE FIHWEO: %i\n",sizeof(directorio[i].dir_nfich));
+	  printf("LOGITUD NOMBRE FIHWEO: %li\n",sizeof(directorio[i].dir_nfich));
 	  printf("NOMBRE ANTIGUO: %s\n",nombreantiguo);
-	  printf("LONGITUD NOMBRE ANTIGUO: %i\n",sizeof(nombreantiguo));
+	  printf("LONGITUD NOMBRE ANTIGUO: %li\n",sizeof(nombreantiguo));
 	  printf("NOMBRE NUEVO: %s\n",nombrenuevo);
 	  if(strcmp(directorio[i].dir_nfich,nombreantiguo)==0){
 	  	printf("ENTRA DENTRO DEL IF");
@@ -142,12 +128,12 @@ int Borrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_BYTE_MAPS *ex
 
 int Copiar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_BYTE_MAPS *ext_bytemaps, EXT_SIMPLE_SUPERBLOCK *ext_superblock,EXT_DATOS *memdatos, char *nombreorigen, char *nombredestino,  FILE *fich){
 	nombredestino[strlen(nombredestino)-1] = '\0';
-	printf("%i\n",sizeof(nombreorigen));
+	printf("%li\n",sizeof(nombreorigen));
 	printf("%s\n",nombredestino);
 	int successfull = 0;
 	int i;
 	for(int p=1; p < sizeof(&directorio); p++){
-	 printf("%i\n",sizeof(directorio[p].dir_nfich));
+	 printf("%li\n",sizeof(directorio[p].dir_nfich));
 	 if(strcmp(directorio[p].dir_nfich,nombreorigen)==0){
 	 printf("igual");
 	  successfull = 0;
@@ -235,9 +221,9 @@ int Copiar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_BYTE_MAPS *ex
 int main()
 {
 	 char *comando[LONGITUD_COMANDO];
-	 char *orden[LONGITUD_COMANDO];
-	 char *argumento1[LONGITUD_COMANDO];
-	 char *argumento2[LONGITUD_COMANDO];
+	 char *orden;
+	 char *argumento1;
+	 char *argumento2;
 	 
 	 int i,j;
 	 unsigned long int m;
@@ -252,7 +238,6 @@ int main()
      FILE *fent;
      
      // Lectura del fichero completo de una sola vez
-     ...
      
      fent = fopen("particion.bin","r+b");
      fread(&datosfich, SIZE_BLOQUE, MAX_BLOQUES_PARTICION, fent);    
