@@ -47,6 +47,34 @@ void LeeSuperBloque(EXT_SIMPLE_SUPERBLOCK *psup){
 	printf("Primer bloque de datos = %d\n", psup->s_first_data_block);
 }
 
+void Printbytemaps(EXT_BYTE_MAPS *ext_bytemaps){
+	printf("Inodos : ");
+	for(int i=0; i < 24; i++){
+		printf("%d ",ext_bytemaps->bmap_inodos[i]);
+	}
+	printf("\nBloques [0-25] : ");
+	for(int i=0; i < 25; i++){
+		printf("%d ",ext_bytemaps->bmap_bloques[i]);
+	}
+	printf("\n");
+}
+
+void Directorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos){
+	if(directorio->dir_nfich != ""){
+		if(directorio->dir_nfich != "" && directorio->dir_inodo != 65535){
+		 printf("%-25stamaño:%-20dinodo:%-10d", directorio->dir_nfich , inodos->blq_inodos[directorio->dir_inodo].size_fichero, directorio->dir_inodo);
+		 printf("bloques: ");
+		 for(int j= 0; j < sizeof(inodos->blq_inodos[directorio->dir_inodo].i_nbloque); j++){
+		 	int bloque = inodos->blq_inodos[directorio->dir_inodo].i_nbloque[j];
+		 	if(bloque != 65535 && bloque != 0){
+		  		printf("%d ",inodos->blq_inodos[directorio->dir_inodo].i_nbloque[j]);
+		  	}
+		 }
+		 printf("\n");
+		}
+	}
+}
+
 int main()
 {
 	 char *comando[LONGITUD_COMANDO];
