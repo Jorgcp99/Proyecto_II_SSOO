@@ -119,6 +119,27 @@ int Imprimir(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_DATOS *memd
 	}
 }
 
+int Borrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_BYTE_MAPS *ext_bytemaps, EXT_SIMPLE_SUPERBLOCK *ext_superblock,char *nombre,  FILE *fich){
+	nombre[strlen(nombre)-1] = '\0';
+	int successfull = 0;
+	for(int i=1; i < sizeof(&directorio); i++){
+	 if(strcmp(directorio[i].dir_nfich,nombre)==0){
+	 	successfull = 1;
+	 	strcpy(directorio[i].dir_nfich,"");
+	 	for(int j= 0; j < sizeof(inodos->blq_inodos[directorio[i].dir_inodo].i_nbloque); j++){
+	        int bloque = inodos->blq_inodos[directorio[i].dir_inodo].i_nbloque[j];
+	        if(bloque != 65535 && bloque != 0){
+	  		ext_bytemaps->bmap_bloques[bloque] = 0;
+	  		inodos->blq_inodos[directorio[i].dir_inodo].i_nbloque[j] = 65535;
+	        	}
+	    	}
+	    	ext_bytemaps->bmap_inodos[directorio[i].dir_inodo] = 0;
+	    	directorio[i].dir_inodo=65535;
+	    
+	 }
+	}
+}
+
 int main()
 {
 	 char *comando[LONGITUD_COMANDO];
