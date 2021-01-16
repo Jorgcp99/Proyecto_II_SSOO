@@ -5,6 +5,20 @@
 
 #define LONGITUD_COMANDO 100
 
+void Printbytemaps(EXT_BYTE_MAPS *ext_bytemaps);
+int BuscaFich(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, 
+              char *nombre);
+void Directorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos);
+int Renombrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, 
+              char *nombreantiguo, char *nombrenuevo);
+int Imprimir(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, 
+             EXT_DATOS *memdatos, char *nombre)
+int Borrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,
+           EXT_BYTE_MAPS *ext_bytemaps, EXT_SIMPLE_SUPERBLOCK *ext_superblock,
+           char *nombre,  FILE *fich);
+int Copiar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,
+           EXT_BYTE_MAPS *ext_bytemaps, EXT_SIMPLE_SUPERBLOCK *ext_superblock,
+           EXT_DATOS *memdatos, char *nombreorigen, char *nombredestino,  FILE *fich);
 void Grabarinodosydirectorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, FILE *fich);
 void GrabarByteMaps(EXT_BYTE_MAPS *ext_bytemaps, FILE *fich);
 void GrabarSuperBloque(EXT_SIMPLE_SUPERBLOCK *ext_superblock, FILE *fich);
@@ -19,7 +33,7 @@ int ComprobarComando(char *strcomando, char *orden, char *argumento1, char *argu
         if (strcmp(orden,"remove")!=0)
         if (strcmp(orden,"copy")!=0)
         if (strcmp(orden,"salir\0")!=0)
-	 printf("camando no valido\n");
+	 printf("ERROR: Comando ilegal [bytemaps,copy,dir,info,imprimir,rename,remove,salir]\n");
 
 	return 0;
 }
@@ -68,13 +82,7 @@ int Renombrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,char *nombrean
 	  	printf("ERROR: El fichero %s ya existe prueba con otro nombre \n",nombrenuevo);
 	  	break;
 	  }
-	  printf("NOMBRE FICHERO: %s\n",directorio[i].dir_nfich);
-	  printf("LOGITUD NOMBRE FIHWEO: %li\n",sizeof(directorio[i].dir_nfich));
-	  printf("NOMBRE ANTIGUO: %s\n",nombreantiguo);
-	  printf("LONGITUD NOMBRE ANTIGUO: %li\n",sizeof(nombreantiguo));
-	  printf("NOMBRE NUEVO: %s\n",nombrenuevo);
 	  if(strcmp(directorio[i].dir_nfich,nombreantiguo)==0){
-	  	printf("ENTRA DENTRO DEL IF");
 	  	strcpy(directorio[i].dir_nfich,nombrenuevo);
 	  	break;
 	  }else{
@@ -128,12 +136,11 @@ int Borrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_BYTE_MAPS *ex
 
 int Copiar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_BYTE_MAPS *ext_bytemaps, EXT_SIMPLE_SUPERBLOCK *ext_superblock,EXT_DATOS *memdatos, char *nombreorigen, char *nombredestino,  FILE *fich){
 	nombredestino[strlen(nombredestino)-1] = '\0';
-	printf("%li\n",sizeof(nombreorigen));
+	printf("%i\n",sizeof(nombreorigen));
 	printf("%s\n",nombredestino);
 	int successfull = 0;
 	int i;
 	for(int p=1; p < sizeof(&directorio); p++){
-	 printf("%li\n",sizeof(directorio[p].dir_nfich));
 	 if(strcmp(directorio[p].dir_nfich,nombreorigen)==0){
 	 printf("igual");
 	  successfull = 0;
@@ -169,16 +176,13 @@ int Copiar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_BYTE_MAPS *ex
 	  
 	  
 	 for(z=1; z < sizeof(&directorio); z++){
-	  printf("Nombre fichero: %s\n",&directorio[z].dir_nfich);
-	  printf("Inodo fichero: %d\n",&directorio[z].dir_inodo);
 	  if(directorio[z].dir_inodo == 65535){
 	   for(k=0; k < sizeof(ext_bytemaps->bmap_inodos); k++){
 	    if(ext_bytemaps->bmap_inodos[k]==0){
-	     printf("ubicación del inodo 3 %i\n", ext_bytemaps->bmap_inodos[k]);
 	     ext_bytemaps->bmap_inodos[k]=1;
 	     strcpy(directorio[z].dir_nfich,nombredestino);
 	     directorio[z].dir_inodo = k ;
-	     printf("size: %i\n",sizeof(inodos->blq_inodos[directorio[z].dir_inodo].i_nbloque));
+	    
 	     /*
 	     for(int y= 1; y < sizeof(inodos->blq_inodos[directorio[z].dir_inodo].i_nbloque); y++){
 	     	inodos->blq_inodos[directorio[z].dir_inodo].i_nbloque[y] = 65535;
@@ -189,10 +193,6 @@ int Copiar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_BYTE_MAPS *ex
 		 for(int n=0; n < sizeof(ext_bytemaps->bmap_bloques); n++){
 		  if(ext_bytemaps->bmap_bloques[n]==0){
 		   ext_bytemaps->bmap_bloques[n]=1;
-		   printf("Posicion de bloque Nuevo: %i",ext_bytemaps->bmap_bloques[n]);
-		   //int bloqueNuevo = inodos->blq_inodos[directorio[z].dir_inodo].i_nbloque[n];
-		   printf("Bloque Original: %i",bloque);
-		   //printf("Bloque Nuevo: %i",bloqueNuevo);
 		   strcpy(memdatos[n].dato,memdatos[bloque].dato);	
 		   inodos->blq_inodos[directorio[z].dir_inodo].i_nbloque[4] = n;
 		   status = 1;
@@ -213,7 +213,7 @@ int Copiar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_BYTE_MAPS *ex
 	}else if(successfull == 1){
 	   printf("Error: Fichero %s no encontrado\n",nombreorigen);
 	}else if(successfull == 2){
-	   printf("Error: Fichero %s ya existe en la particion",nombredestino);
+	   printf("Error: Fichero %s ya existe en la particion\n",nombredestino);
 	}
 	
 }
@@ -221,9 +221,9 @@ int Copiar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_BYTE_MAPS *ex
 int main()
 {
 	 char *comando[LONGITUD_COMANDO];
-	 char *orden;
-	 char *argumento1;
-	 char *argumento2;
+	 char *orden[LONGITUD_COMANDO];
+	 char *argumento1[LONGITUD_COMANDO];
+	 char *argumento2[LONGITUD_COMANDO];
 	 
 	 int i,j;
 	 unsigned long int m;
@@ -238,6 +238,7 @@ int main()
      FILE *fent;
      
      // Lectura del fichero completo de una sola vez
+     ...
      
      fent = fopen("particion.bin","r+b");
      fread(&datosfich, SIZE_BLOQUE, MAX_BLOQUES_PARTICION, fent);    
